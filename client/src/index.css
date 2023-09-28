@@ -6,11 +6,13 @@
   box-sizing: border-box;
 }
 
+/* highlight "score" text in green for 1 second if answer is correct */
 .green-score {
   color: green;
   animation: fade 1s ease-in-out;
 }
 
+/* fade animation to highlight green and red texts on "score" and "attempts left" */
 @keyframes fade {
   0% {
     opacity: 0;
@@ -23,7 +25,34 @@
   }
 }
 
-.red-warnings {
+/* flash animation for timer */
+@keyframes flash {
+  0% {
+    color: inherit;
+  }
+  50% {
+    color: red;
+  }
+  100% {
+    color: inherit;
+  }
+}
+
+/* flash "time left" text in red infinitely while in countdown */
+.flash-text {
+  animation: flash 1s infinite;
+}
+
+/* highlight "attempts left" text in red for 1 second if answer is incorrect */
+.red-score {
   color: red;
   animation: fade 1s ease-in-out;
+}
+
+/* truncate email names on leaderboard in HighScores component */
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 20ch;
 }

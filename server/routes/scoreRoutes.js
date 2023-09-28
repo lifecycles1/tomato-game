@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Score = require("../models/score");
 
+// Route to add or update a user's score
 router.post("/score", async (req, res) => {
   try {
     console.log("req.body", req.body);
@@ -26,6 +27,21 @@ router.post("/score", async (req, res) => {
   } catch (error) {
     console.log("error updating score", error);
     res.status(500).send("error updating score");
+  }
+});
+
+// Route to fetch high scores
+router.get("/highscores", async (req, res) => {
+  try {
+    // Find the top N high scores
+    const topScores = await Score.find()
+      .sort({ score: -1 }) // Sort scores in descending order (highest first)
+      .limit(10); // Limit the results to the top 10 scores
+
+    res.status(200).json(topScores);
+  } catch (error) {
+    console.log("Error fetching high scores:", error);
+    res.status(500).json({ error: "Error fetching high scores" });
   }
 });
 

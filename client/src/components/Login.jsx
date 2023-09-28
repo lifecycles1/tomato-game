@@ -11,7 +11,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await axios.post("http://localhost:8000/signin", { email, password }).then((res) => {
-        if (res.data === email) {
+        if (res.data.email === email) {
           history("/home", { state: { id: email } });
         } else if (res.data === "email or password are incorrect") {
           alert("email or password are incorrect");
