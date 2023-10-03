@@ -11,7 +11,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       await axios.post("http://localhost:8000/signup", { email, password }).then((res) => {
-        if (res.data.email === email) {
+        if (res.data === "email already exists") {
           alert("Email already exists");
         } else if (res.data === "account created") {
           history("/home", { state: { id: email } });

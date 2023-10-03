@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import HighScores from "./HighScores";
+import background from "../assets/background.jpg";
 
 // Home component
 const Home = () => {
@@ -11,7 +12,7 @@ const Home = () => {
   const [guess, setGuess] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [countdown, setCountdown] = useState(20);
+  const [countdown, setCountdown] = useState(100);
   const [score, setScore] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
   const [isIncorrect, setIsIncorrect] = useState(false);
@@ -31,7 +32,7 @@ const Home = () => {
       setSolution(data.solution);
       setIsGameOver(false);
       setGuess("");
-      setCountdown(20);
+      setCountdown(100);
       setAttempts(0);
     } catch (error) {
       console.error("Error fetching question:", error);
@@ -103,7 +104,6 @@ const Home = () => {
 
   // reset isCorrect after 1 second to allow "Score" CSS animation to play again
   useEffect(() => {
-    console.log("isCorrect:", isCorrect);
     if (isCorrect) {
       const timeout = setTimeout(() => {
         setIsCorrect(false);
@@ -116,7 +116,6 @@ const Home = () => {
 
   // reset isInCorrect after 1 second to allow "attempts left" CSS animation to play again
   useEffect(() => {
-    console.log("isIncorrect:", isIncorrect);
     if (isIncorrect) {
       const timeout = setTimeout(() => {
         setIsIncorrect(false);
@@ -131,6 +130,7 @@ const Home = () => {
   const resetGame = () => {
     sendScoreToDatabase(); // Send the score to the database
     fetchQuestion(); // Fetch the initial question
+    setScore(0); // Reset the score
   };
 
   // button to play again after game over
@@ -139,7 +139,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 bg-cover bg-no-repeat" style={{ backgroundImage: `url(${background})` }}>
       {isGameOver ? (
         <div className="flex flex-col items-center">
           <h1 className="text-3xl font-bold text-red-500 mb-5">Game Over</h1>
@@ -154,7 +154,17 @@ const Home = () => {
             Hello <span className="text-2xl font-semibold">{location.state.id.split("@")[0]}</span>, and welcome to the
           </h1>
           <h1 className="text-3xl font-bold">Tomato Math Game</h1>
-          <img src={question} alt="Math Game" className="mt-4 mb-4 max-w-md" />
+          <img
+            src={question}
+            alt="Math Game"
+            className="mt-4 mb-4 max-w-md rounded-xl"
+            style={{
+              borderLeft: "2px solid pink",
+              borderTop: "2px solid green",
+              borderRight: "2px solid yellow",
+              borderBottom: "2px solid blue",
+            }}
+          />
 
           <div className="flex space-x-2">
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (

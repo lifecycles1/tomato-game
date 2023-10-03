@@ -6,15 +6,15 @@ router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const check = await User.findOne({ email: email });
-    if (check) {
-      if (check.password === password) {
-        res.status(200).send(check);
+    const user = await User.findOne({ email: email });
+    if (user) {
+      if (user.password === password) {
+        res.status(200).send(user);
       } else {
-        res.status(401).send("email or password are incorrect");
+        res.status(200).send("email or password are incorrect");
       }
     } else {
-      res.status(401).send("email or password are incorrect");
+      res.status(200).send("email or password are incorrect");
     }
   } catch (error) {
     console.log("error signing in", error);
@@ -26,9 +26,9 @@ router.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const check = await User.findOne({ email: email });
-    if (check) {
-      res.status(409).send(check);
+    const userExists = await User.findOne({ email: email });
+    if (userExists) {
+      res.status(200).send("email already exists");
     } else {
       const newUser = new User({
         email: email,
