@@ -3,20 +3,21 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
-  const history = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   async function submit(e) {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/signin", { email, password }).then((res) => {
-        if (res.data.email === email) {
-          history("/home", { state: { id: email } });
-        } else if (res.data === "email or password are incorrect") {
-          alert("email or password are incorrect");
-        }
-      });
+      const response = await axios.post("http://localhost:8000/signin", { email, password });
+      const { data } = response;
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/home");
+      } else if (data === "email or password are incorrect") {
+        alert("email or password are incorrect");
+      }
     } catch (error) {
       alert("error while logging in");
       console.log(error);

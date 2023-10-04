@@ -3,20 +3,21 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
 const Signup = () => {
-  const history = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   async function submit(e) {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/signup", { email, password }).then((res) => {
-        if (res.data === "email already exists") {
-          alert("Email already exists");
-        } else if (res.data === "account created") {
-          history("/home", { state: { id: email } });
-        }
-      });
+      const response = await axios.post("http://localhost:8000/signup", { email, password });
+      const { data } = response;
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/home");
+      } else if (data === "email already exists") {
+        alert("email already exists");
+      }
     } catch (error) {
       alert("error while creating an account");
       console.log(error);
