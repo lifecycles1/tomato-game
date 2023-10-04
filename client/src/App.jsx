@@ -1,3 +1,4 @@
+import HighScoresPage from "./components/HighScoresPage";
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
@@ -11,6 +12,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/highscores" element={<HighScoresPage />} />
         </Routes>
       </Router>
     </div>
