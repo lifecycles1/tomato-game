@@ -10,7 +10,7 @@ import { sendScoreToDatabase } from "../utils/scoreUtils";
 const MathGame = () => {
   const [question, setQuestion] = useState("");
   const [solution, setSolution] = useState(null);
-  const [guess, setGuess] = useState("");
+  const [answer, setAnswer] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [countdown, setCountdown] = useState(100);
@@ -30,7 +30,7 @@ const MathGame = () => {
       setQuestion(data.question);
       setSolution(data.solution);
       setIsGameOver(false);
-      setGuess("");
+      setAnswer("");
       setCountdown(100);
       setAttempts(0);
       setLoading(false);
@@ -63,15 +63,15 @@ const MathGame = () => {
     }
   }, [countdown, isGameOver]);
 
-  // Function to handle the user's guess
-  const handleGuess = () => {
-    if (parseInt(guess) === solution) {
-      // Correct guess, increment score and fetch a new question
+  // Function to submit the user's answer
+  const submitAnswer = () => {
+    if (answer === solution) {
+      // Correct answer, increment score and fetch a new question
       setScore(score + 1);
       fetchQuestion();
       setIsCorrect(true); // Set to true to trigger green "score" text CSS animation
     } else {
-      // Incorrect guess, increment attempts
+      // Incorrect answer, increment attempts
       setAttempts(attempts + 1);
       setIsIncorrect(true); // Set to true to trigger the red "attempts left" text CSS animation
       if (attempts >= 2) {
@@ -80,8 +80,8 @@ const MathGame = () => {
         // Send the score to the database if attempts run out
         sendScoreToDatabase(user.email, score);
       }
-      // Clear the guess
-      setGuess("");
+      // Clear the answer
+      setAnswer("");
     }
   };
 
@@ -134,7 +134,7 @@ const MathGame = () => {
   if (loading) return <Loading />;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-no-repeat" style={{ backgroundImage: `url(${background})` }}>
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-cover bg-no-repeat" style={{ backgroundImage: `url(${background})` }}>
       {isGameOver ? (
         <div className="flex flex-col items-center">
           <h1 className="text-3xl font-bold text-red-500 mb-5">Game Over</h1>
@@ -144,39 +144,37 @@ const MathGame = () => {
           </button>
         </div>
       ) : (
-        <div>
-          <h1>
+        <div className="-mt-24">
+          <h1 className="absolute top-2 left-36">
             Hello <span className="text-2xl font-semibold">{user?.email?.split("@")[0]}</span>, and welcome to the
           </h1>
           <h1 className="text-3xl font-bold">Tomato Math Game</h1>
           <h2 className="text-2xl font-semibold">Can you solve this equation?</h2>
-          <img src={question} alt="Math Game" className="mt-4 mb-4 max-w-md rounded-xl border-2 border-l-pink-500 border-t-green-500 border-r-yellow-500 border-b-blue-500" />
+          <p className="mt-4 flash-text absolute top-36 left-36">Time Left: {countdown} seconds</p>
+          <p className={`absolute top-48 left-36 ${isIncorrect && "red-score"}`}>Attempts Remaining: {3 - attempts}</p>
+          <div className={`text-xl absolute top-60 left-44 ${isCorrect && "green-score"}`}>Score: {score}</div>
+          <button onClick={resetGame} className="absolute top-10 right-20 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+            Start New Game
+          </button>
+          <div className="flex items-center mt-4 mb-4 max-w-md rounded-xl border-2 border-l-pink-500 border-t-green-500 border-r-yellow-500 border-b-blue-500">
+            <img src={question} alt="Math Game" />
+          </div>
 
           <div className="flex space-x-2">
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (
-              <button key={number} onClick={() => setGuess(number)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <button key={number} onClick={() => setAnswer(number)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
                 {number}
               </button>
             ))}
           </div>
 
-          <div className="mt-4 flex">
-            <input type="text" value={guess} readOnly className="px-4 py-2 border rounded-lg text-center" />
-            <button onClick={() => setGuess("")} className="px-4 py-2 ml-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+          <div className="mt-4 flex justify-between">
+            <button onClick={submitAnswer} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+              Submit Answer
+            </button>
+            <input type="text" value={answer} readOnly className="px-4 py-2 border rounded-lg text-center border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400" />
+            <button onClick={() => setAnswer("")} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
               Clear
-            </button>
-            <div className={`pl-5 ml-24 mt-2 text-xl ${isCorrect ? "green-score" : ""}`}>Score: {score}</div>
-          </div>
-
-          <p className="mt-4 flash-text">Time Left: {countdown} seconds</p>
-          <p className={`${isIncorrect ? "red-score" : ""}`}>Attempts Remaining: {3 - attempts}</p>
-
-          <div className="flex justify-between">
-            <button onClick={handleGuess} className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-              Guess
-            </button>
-            <button onClick={resetGame} className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-              Start New Game
             </button>
           </div>
         </div>
