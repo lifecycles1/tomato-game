@@ -3,6 +3,8 @@ import axios from "axios";
 import HighScores from "./HighScores";
 import background from "../assets/background.jpg";
 import jwt_decode from "jwt-decode";
+import Loading from "./Loading";
+import { sendScoreToDatabase } from "../utils/scoreUtils";
 
 // MathGame component
 const MathGame = () => {
@@ -16,6 +18,7 @@ const MathGame = () => {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Function to fetch a new question from the API
   const fetchQuestion = async () => {
@@ -30,6 +33,7 @@ const MathGame = () => {
       setGuess("");
       setCountdown(100);
       setAttempts(0);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching question:", error);
     }
@@ -50,7 +54,7 @@ const MathGame = () => {
           // Game over if countdown reaches 0
           setIsGameOver(true);
           // Send the score to the database if time runs out
-          sendScoreToDatabase();
+          sendScoreToDatabase(user.email, score);
         }
       }, 1000);
 
@@ -59,39 +63,22 @@ const MathGame = () => {
     }
   }, [countdown, isGameOver]);
 
-  // Function to send the score to the database
-  const sendScoreToDatabase = async () => {
-    if (score > 0) {
-      console.log("Sending score to the database...", score);
-      try {
-        const response = await axios.post("http://localhost:8000/score", {
-          email: user.email,
-          score: score,
-        });
-        // Handle the response from the server if needed
-        console.log("Score sent to the database:", response.data);
-      } catch (error) {
-        console.error("Error sending score to the database:", error);
-      }
-    }
-  };
-
   // Function to handle the user's guess
   const handleGuess = () => {
     if (parseInt(guess) === solution) {
       // Correct guess, increment score and fetch a new question
       setScore(score + 1);
       fetchQuestion();
-      setIsCorrect(true); // Set to true to trigger the CSS animation
+      setIsCorrect(true); // Set to true to trigger green "score" text CSS animation
     } else {
       // Incorrect guess, increment attempts
       setAttempts(attempts + 1);
-      setIsIncorrect(true); // Set to true to trigger the red CSS animation
+      setIsIncorrect(true); // Set to true to trigger the red "attempts left" text CSS animation
       if (attempts >= 2) {
         // Game over if 3 failed attempts
         setIsGameOver(true);
         // Send the score to the database if attempts run out
-        sendScoreToDatabase();
+        sendScoreToDatabase(user.email, score);
       }
       // Clear the guess
       setGuess("");
@@ -124,9 +111,9 @@ const MathGame = () => {
 
   // button to reset the game
   const resetGame = () => {
-    sendScoreToDatabase(); // Send the score to the database
-    fetchQuestion(); // Fetch the initial question
-    setScore(0); // Reset the score
+    sendScoreToDatabase(user.email, score);
+    fetchQuestion();
+    setScore(0);
   };
 
   // button to play again after game over
@@ -143,8 +130,11 @@ const MathGame = () => {
     }
   }, []);
 
+  // if loading, display loading message
+  if (loading) return <Loading />;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 bg-cover bg-no-repeat" style={{ backgroundImage: `url(${background})` }}>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-no-repeat" style={{ backgroundImage: `url(${background})` }}>
       {isGameOver ? (
         <div className="flex flex-col items-center">
           <h1 className="text-3xl font-bold text-red-500 mb-5">Game Over</h1>
@@ -159,17 +149,8 @@ const MathGame = () => {
             Hello <span className="text-2xl font-semibold">{user?.email?.split("@")[0]}</span>, and welcome to the
           </h1>
           <h1 className="text-3xl font-bold">Tomato Math Game</h1>
-          <img
-            src={question}
-            alt="Math Game"
-            className="mt-4 mb-4 max-w-md rounded-xl"
-            style={{
-              borderLeft: "2px solid pink",
-              borderTop: "2px solid green",
-              borderRight: "2px solid yellow",
-              borderBottom: "2px solid blue",
-            }}
-          />
+          <h2 className="text-2xl font-semibold">Can you solve this equation?</h2>
+          <img src={question} alt="Math Game" className="mt-4 mb-4 max-w-md rounded-xl border-2 border-l-pink-500 border-t-green-500 border-r-yellow-500 border-b-blue-500" />
 
           <div className="flex space-x-2">
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (

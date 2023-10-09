@@ -6,7 +6,7 @@ const NavigationBar = () => {
   const navigate = useNavigate();
 
   const navLinks = [
-    { to: "/home", label: "Home" },
+    { to: "/home", label: "Game" },
     { to: "/highscores", label: "High Scores" },
   ];
 
